@@ -79,6 +79,23 @@
         shell: "kill -9 {{ pid.stdout }}"
         ignore_errors: true
 
+- hosts: grafana
+  gather_facts: no
+  tasks: 
+  - name: Handler the error
+    block:
+    - name: Shutdown grafana
+      shell: "kill -9 {{ item }}"
+      with_lines:
+        - "cat {{ WORKDIR }}/grafana/{{ inventory_hostname }}/grafana.pid"
+    rescue:
+      - name: Shutdown grafana
+        shell: ps auxwww | grep grafana | grep -v grep | awk '{print $2}'
+        register: pid
+      - name: kill 
+        shell: "kill -9 {{ pid.stdout }}"
+        ignore_errors: true
+
 - hosts: prometheus
   gather_facts: no
   tasks: 

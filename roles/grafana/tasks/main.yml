@@ -22,26 +22,14 @@
   ignore_errors: true
   when: ansible_distribution == 'MacOSX'
 
-# - name: Generate Files from Prometheus servers
-#   template:
-#     src: "prometheus-datasource.json.j2"
-#     dest: "/tmp/json/{{ item }}.json"
-#   loop: "{{ groups['prometheus'] }}"
+- name: Generate Files from Prometheus servers
+  template:
+    src: "prometheus-datasource.json.j2"
+    dest: "{{ grafana_path }}/{{ item }}.json"
+  loop: "{{ groups['prometheus'] }}"
 
-# - name: Find json config files
-#   find:
-#     paths: [/tmp/json/]
-#     file_type: file
-#     recurse: no
-#   register: resultado_find
-
-# - name: Generate datasources
-#   shell: "curl --silent --fail --show-error --request POST http://admin:admin@${HOSTNAME}:3000/api/datasources --header 'Content-Type: application/json' --data-binary @{{ item.path }}"
-#   with_items: "{{ resultado_find.files }}"
-#   ignore_errors: yes
-
-# - name: Cria script de start do kafka exporter
-#   template:
-#     src: "node-exporter.sh.j2"
-#     dest: "{{ grafana_path }}/node-exporter.sh"
-#     mode: '0755'
+- name: Cria script de start do grafana
+  template:
+    src: "grafana.sh.j2"
+    dest: "{{ grafana_path }}/grafana.sh"
+    mode: '0755'

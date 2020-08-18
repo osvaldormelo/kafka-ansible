@@ -1,6 +1,6 @@
 #!/bin/bash
 
-{{ prometheus_path }}/prometheus/prometheus --config.file={{ prometheus_path }}/prometheus/etc/prometheus.yml --storage.tsdb.path={{ prometheus_path }}/prometheus/data --web.console.templates={{ prometheus_path }}/prometheus/consoles --web.console.libraries={{ prometheus_path }}/prometheus/console_libraries --web.listen-address={{ inventory_hostname }}:9090 --web.external-url= &
+{{ prometheus_path }}/prometheus/prometheus --config.file={{ prometheus_path }}/prometheus/etc/prometheus.yml --storage.tsdb.path={{ prometheus_path }}/prometheus/data --web.console.templates={{ prometheus_path }}/prometheus/consoles --web.console.libraries={{ prometheus_path }}/prometheus/console_libraries --web.listen-address={{ inventory_hostname }}:9090 --web.external-url=
 
 PID_PROMETHEUS=$!
 

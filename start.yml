@@ -42,7 +42,31 @@
   gather_facts: no
   tasks: 
   - name: Inicia o prometheus
-    # shell: "{{ WORKDIR }}/prometheus/{{ inventory_hostname }}/prometheus.sh"
-    shell: "/tmp/workdir/prometheus/127.0.0.1/prometheus/prometheus --config.file=/tmp/workdir/prometheus/127.0.0.1/prometheus/etc/prometheus.yml --storage.tsdb.path=/tmp/workdir/prometheus/127.0.0.1/prometheus/data --web.console.templates=/tmp/workdir/prometheus/127.0.0.1/prometheus/consoles --web.console.libraries=/tmp/workdir/prometheus/127.0.0.1/prometheus/console_libraries --web.listen-address=127.0.0.1:9090 --web.external-url="
+    shell: "{{ WORKDIR }}/prometheus/{{ inventory_hostname }}/prometheus.sh"
+    #shell: "/tmp/workdir/prometheus/127.0.0.1/prometheus/prometheus --config.file=/tmp/workdir/prometheus/127.0.0.1/prometheus/etc/prometheus.yml --storage.tsdb.path=/tmp/workdir/prometheus/127.0.0.1/prometheus/data --web.console.templates=/tmp/workdir/prometheus/127.0.0.1/prometheus/consoles --web.console.libraries=/tmp/workdir/prometheus/127.0.0.1/prometheus/console_libraries --web.listen-address=127.0.0.1:9090 --web.external-url="
     async: 9999999999
     poll: 0
+
+- hosts: grafana
+  gather_facts: no
+  tasks: 
+  - name: Inicia o grafana
+    shell: "{{ WORKDIR }}/grafana/{{ inventory_hostname }}/grafana.sh"
+    async: 9999999999
+    poll: 0
+  - name: Wait for grafana to be ready
+    wait_for:
+      port: 3000
+      delay: 5
+      host: "{{ inventory_hostname }}"
+  - name: Find json config files
+    find:
+      paths: ["{{ WORKDIR }}/grafana/{{ inventory_hostname }}"]
+      file_type: file
+      recurse: no
+      patterns: "*.json"
+    register: resultado_find
+  - name: Generate datasources
+    shell: "curl --silent --fail --show-error --request POST http://admin:admin@{{inventory_hostname}}:3000/api/datasources --header 'Content-Type: application/json' --data-binary @{{ item.path }}"
+    with_items: "{{ resultado_find.files }}"
+    ignore_errors: yes

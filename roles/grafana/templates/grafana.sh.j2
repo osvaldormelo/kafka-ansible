@@ -1,0 +1,7 @@
+#!/bin/bash
+
+{{ grafana_path }}/grafana/bin/grafana-server -config {{ grafana_path }}/grafana/conf/defaults.ini -homepath {{ grafana_path }}/grafana
+
+PID_GRAFANA=$!
+
+echo $PID_GRAFANA > {{ grafana_path }}/grafana.pid

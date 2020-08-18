@@ -1,7 +1,7 @@
 {
-    "name": "{{ hostvars[item]['private_ip'] }}",
+    "name": "{{ hostvars[item]['inventory_hostname'] }}",
     "type": "prometheus",
-    "url": "http://{{ hostvars[item]['private_ip'] }}:9090",
+    "url": "http://{{ hostvars[item]['inventory_hostname'] }}:9090",
     "access": "proxy",
     "basicAuth": false
 }
