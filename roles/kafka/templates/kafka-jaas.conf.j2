@@ -1,0 +1,23 @@
+Client {
+       org.apache.zookeeper.server.auth.DigestLoginModule required
+       username="kafka"
+       password="123456";
+};
+encrypted.KafkaServer {
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="kafka"
+    password="kafka-secret"
+    user_admin="admin-secret"
+    user_kafka="kafka-secret"
+    user_reader="123456"
+    user_writer="123456"
+    user_grouper="123456"
+    ;
+};
+replication.KafkaServer {
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="kafka"
+    password="kafka-secret"
+    user_admin="admin-secret"
+    user_kafka="kafka-secret";
+};

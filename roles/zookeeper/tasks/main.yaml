@@ -1,0 +1,47 @@
+- name: Set zookeeper path
+  set_fact:
+    zookeeper_path: "{{ WORKDIR }}/zookeeper/{{ inventory_hostname }}"
+
+- name: "Cria pasta {{ zookeeper_path }}"
+  file:
+    path: "{{ zookeeper_path }}"
+    state: directory
+    recurse: yes
+
+- name: Baixa e descompacta binário da instalação
+  unarchive:
+    src: "{{ playbook_dir }}/download_files/{{ KAFKA_BINARY_NAME }}"
+    dest: "{{ zookeeper_path }}"
+    list_files: yes
+    creates: "{{ zookeeper_path }}/amq-streams"
+  register: archive_contents
+
+- name: Rename folder
+  command: "mv {{ zookeeper_path }}/{{ archive_contents.files[0] }} {{ zookeeper_path }}/amq-streams"
+  ignore_errors: true
+
+- name: Copy zookeeper.properties
+  template:
+    src: "zookeeper.properties.j2"
+    dest: "{{ zookeeper_path }}/amq-streams/config/zookeeper.properties"
+    backup: yes
+
+- name: "Cria zookeeper data-dir"
+  file:
+    path: "{{ zookeeper_path }}/amq-streams/zookeeper-data"
+    state: directory
+    recurse: yes
+
+- name: Cria ID para nodes zookeeper
+  template:
+    src: "myid.j2"
+    dest: "{{ zookeeper_path }}/amq-streams/zookeeper-data/myid"
+
+- name: Cria script de start
+  template:
+    src: "zookeeper.sh.j2"
+    dest: "{{ zookeeper_path }}/zookeeper.sh"
+    mode: '0755'
+
+# - name: Inicia o zookeeper
+#   shell: "{{ zookeeper_path }}/zookeeper.sh"

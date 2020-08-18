@@ -1,0 +1,37 @@
+- name: Set kafka path
+  set_fact:
+    kafka_path: "{{ WORKDIR }}/kafka/{{ inventory_hostname }}"
+
+- name: "Cria pasta {{ kafka_path }}"
+  file:
+    path: "{{ kafka_path }}"
+    state: directory
+    recurse: yes
+
+- name: Baixa e descompacta binário da instalação
+  unarchive:
+    src: "{{ playbook_dir }}/download_files/{{ KAFKA_BINARY_NAME }}"
+    dest: "{{ kafka_path }}"
+    list_files: yes
+    creates: "{{ kafka_path }}/amq-streams"
+  register: archive_contents
+
+- name: Rename folder
+  command: "mv {{ kafka_path }}/{{ archive_contents.files[0] }} {{ kafka_path }}/amq-streams"
+  ignore_errors: true
+
+- name: Cria arquivo de properties
+  template:
+   src: "server.properties.j2"
+   dest: "{{ kafka_path }}/amq-streams/config/server.properties"
+   backup: yes
+
+- name: Cria script de start
+  template:
+    src: "kafka.sh.j2"
+    dest: "{{ kafka_path }}/kafka.sh"
+    mode: '0755'
+
+# - name: Inicia o kafka
+#   shell: "{{ kafka_path }}/kafka.sh"
+ 

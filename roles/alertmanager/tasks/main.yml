@@ -1,0 +1,29 @@
+- name: Set alertmanager path
+  set_fact:
+    alertmanager_path: "{{ WORKDIR }}/alertmanager/{{ inventory_hostname }}"
+
+- name: "Cria pasta {{ alertmanager_path }}"
+  file:
+    path: "{{ alertmanager_path }}"
+    state: directory
+    recurse: yes
+
+- name: Unarchive alertmanager
+  unarchive:
+    src: "{{ ALERT_MANAGER_BINARY_URL }}"
+    dest: "{{ alertmanager_path }}/"
+    remote_src: yes
+    creates: "{{ alertmanager_path }}/alertmanager"
+  register: archive_contents
+  when: ansible_distribution == 'MacOSX'
+
+- name: Rename folder
+  command: "mv {{ alertmanager_path }}/alertmanager-0.21.0.darwin-amd64 {{ alertmanager_path }}/alertmanager"
+  ignore_errors: true
+  when: ansible_distribution == 'MacOSX'
+
+- name: Cria script de start do alertmanager
+  template:
+    src: "alertmanager.sh.j2"
+    dest: "{{ alertmanager_path }}/alertmanager.sh"
+    mode: '0755'

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export KAFKA_HEAP_OPTS="-Xms1G -Xmx1G -XX:MetaspaceSize=96M -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80"
+
+###REPLACE1
+
+###REPLACE2
+
+{{ kafka_path }}/amq-streams/bin/kafka-server-start.sh {{ kafka_path }}/amq-streams/config/server.properties &
+
+PID_KAFKA=$!
+
+echo $PID_KAFKA > {{ kafka_path }}/kafka.pid

@@ -1,0 +1,29 @@
+- name: Set node-exporter path
+  set_fact:
+    node_exporter_path: "{{ WORKDIR }}/node-exporter/{{ inventory_hostname }}"
+
+- name: "Cria pasta {{ node_exporter_path }}"
+  file:
+    path: "{{ node_exporter_path }}"
+    state: directory
+    recurse: yes
+
+- name: Unarchive node_exporter
+  unarchive:
+    src: "{{ NODE_EXPORTER_URL }}"
+    dest: "{{ node_exporter_path }}/"
+    remote_src: yes
+    creates: "{{ node_exporter_path }}/node_exporter-1.0.1.darwin-amd64"
+  register: archive_contents
+  when: ansible_distribution == 'MacOSX'
+
+- name: Rename folder
+  command: "mv {{ node_exporter_path }}/node_exporter-1.0.1.darwin-amd64 {{ node_exporter_path }}/node_exporter"
+  ignore_errors: true
+  when: ansible_distribution == 'MacOSX'
+
+- name: Cria script de start do kafka exporter
+  template:
+    src: "node-exporter.sh.j2"
+    dest: "{{ node_exporter_path }}/node-exporter.sh"
+    mode: '0755'

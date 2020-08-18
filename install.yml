@@ -1,0 +1,54 @@
+---
+- hosts: localhost
+  gather_facts: no
+  roles:
+    - common
+
+- hosts: zookeepers
+  gather_facts: no
+  tasks: 
+  - include_role:
+      name: zookeeper
+  - include_role:
+      name: jmx-exporter
+    when: ZOOKEEPER_MONITORING == True
+
+- hosts: kafkas
+  gather_facts: yes
+  tasks: 
+  - include_role:
+      name: kafka
+  - include_role:
+      name: jmx-exporter
+    when: KAFKA_MONITORING == True
+  - include_role:
+      name: kafka-exporter
+    when: KAFKA_EXPORTER == True
+
+- hosts: node_exporter
+  gather_facts: yes
+  tasks: 
+  - include_role:
+      name: node-exporter
+    when: NODE_EXPORTER == True
+
+- hosts: prometheus
+  gather_facts: no
+  tasks: 
+  - include_role:
+      name: prometheus
+    when: PROMETHEUS == True
+
+- hosts: alertmanager
+  gather_facts: yes
+  tasks: 
+  - include_role:
+      name: alertmanager
+    when: ALERT_MANAGER == True
+
+- hosts: grafana
+  gather_facts: yes
+  tasks: 
+  - include_role:
+      name: grafana
+    when: GRAFANA == True

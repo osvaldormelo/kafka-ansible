@@ -1,0 +1,29 @@
+# Global config
+global: 
+  scrape_interval:     30s # Set the scrape interval to every 15 seconds. Default is every 1 minute.  
+  evaluation_interval: 30s # Evaluate rules every 15 seconds. The default is every 1 minute.  
+  scrape_timeout: 20s  # scrape_timeout is set to the global default (10s).
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: [ {{groups['prometheus'][0]}}:9090 ]
+
+  - job_name: 'node_exporter'
+    static_configs:
+    - targets: [ {{groups['node_exporter'][0]}}:9100 ]
+
+  - job_name: 'jmx_zookeeper'
+    static_configs:
+    - targets: [  {% for host in groups['zookeepers'] %}{{ hostvars[host]['inventory_hostname'] }}:7071{% if not loop.last %},{% endif %}{% endfor %}  ]
+
+  - job_name: 'jmx_kafka'
+    static_configs:
+    - targets: [  {% for host in groups['kafkas'] %}{{ hostvars[host]['inventory_hostname'] }}:7071{% if not loop.last %},{% endif %}{% endfor %}  ]
+
+  - job_name: 'kafka_exporter'
+    static_configs:
+    - targets: [  {% for host in groups['kafkas'] %}{{ hostvars[host]['inventory_hostname'] }}:9308{% if not loop.last %},{% endif %}{% endfor %}  ]
+
+  - job_name: 'grafana_metrics'
+    static_configs:
+    - targets: [ {{groups['prometheus'][0]}}:3000 ]

@@ -1,0 +1,65 @@
+- name: Set jmx-exporter path
+  set_fact:
+    jmx_exporter_path: "{{ WORKDIR }}/jmx-exporter/{{ inventory_hostname }}"
+
+- name: Create dirs
+  file:
+    path: "{{ jmx_exporter_path }}"
+    state: directory
+
+- name: Download Jar
+  get_url:
+    url: "{{ JMX_EXPORTER_URL }}"
+    dest: "{{ jmx_exporter_path }}/jmx_exporter.jar"
+    mode: "0755"
+
+# - name: Copy config.yml to /opt/jmx-exporter for Kafka
+#   template:
+#     src: kafka.yml.j2
+#     dest: /opt/jmx-exporter/config.yml
+#     mode: "0755"
+#     owner: kafka
+#     group: kafka
+#   when: inventory_hostname in groups['amqstreams']
+
+- name: Copy config.yml for Zookeeper
+  template:
+    src: zookeeper.yml.j2
+    dest: "{{ zookeeper_path }}/jmx-config.yml"
+    mode: "0755"
+  when: inventory_hostname in groups['zookeepers']
+
+- name: Change zookeeper init script
+  lineinfile:
+    path: "{{ zookeeper_path }}/zookeeper.sh"
+    regexp: '^###REPLACE1'
+    line: export KAFKA_OPTS="-javaagent:{{ jmx_exporter_path }}/jmx_exporter.jar={{ inventory_hostname }}:7071:{{ zookeeper_path }}/jmx-config.yml"
+  when: inventory_hostname in groups['zookeepers']
+
+- name: Change zookeeper init script 2
+  lineinfile:
+    path: "{{ zookeeper_path }}/zookeeper.sh"
+    regexp: '^###REPLACE2'
+    line: export KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname={{ inventory_hostname }}"
+  when: inventory_hostname in groups['zookeepers']
+
+- name: Copy config.yml for Kafka
+  template:
+    src: kafka.yml.j2
+    dest: "{{ kafka_path }}/jmx-config.yml"
+    mode: "0755"
+  when: inventory_hostname in groups['kafkas']
+
+- name: Change kafka init script
+  lineinfile:
+    path: "{{ kafka_path }}/kafka.sh"
+    regexp: '^###REPLACE1'
+    line: export KAFKA_OPTS="-javaagent:{{ jmx_exporter_path }}/jmx_exporter.jar={{ inventory_hostname }}:7071:{{ kafka_path }}/jmx-config.yml"
+  when: inventory_hostname in groups['kafkas']
+
+- name: Change kafka init script 2
+  lineinfile:
+    path: "{{ kafka_path }}/kafka.sh"
+    regexp: '^###REPLACE2'
+    line: export KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname={{ inventory_hostname }}"
+  when: inventory_hostname in groups['kafkas']

@@ -1,0 +1,97 @@
+- hosts: kafkas
+  gather_facts: no
+  tasks: 
+  - name: Handler the error
+    block: 
+      - name: Shutdown kafka
+        shell: "kill -9 {{ item }}"
+        with_lines:
+          - "cat {{ WORKDIR }}/kafka/{{ inventory_hostname }}/kafka.pid"
+    rescue:
+      - name: Shutdown kafka
+        shell: ps auxwww | grep server.properties | grep -v grep | awk '{print $2}'
+        register: pid
+      - name: kill 
+        shell: "kill -9 {{ pid.stdout }}"
+        ignore_errors: true
+  - name: Handler the error2
+    block: 
+      - name: Shutdown kafka_exporter
+        shell: "kill -9 {{ item }}"
+        with_lines:
+          - "cat {{ WORKDIR }}/kafka/{{ inventory_hostname }}/kafka-exporter.pid"
+    rescue: 
+      - name: Shutdown kafka exporter
+        shell: ps auxwww | grep kafka_exporter | grep -v grep | awk '{print $2}'
+        register: pid
+      - name: kill 
+        shell: "kill -9 {{ pid.stdout }}"
+        ignore_errors: true
+
+- hosts: zookeepers
+  gather_facts: no
+  tasks: 
+  - name: Handler the error
+    block: 
+      - name: Shutdown zookeeper
+        shell: "kill -9 {{ item }}"
+        with_lines:
+          - "cat {{ WORKDIR }}/zookeeper/{{ inventory_hostname }}/zookeeper.pid"
+    rescue:
+      - name: Shutdown zookeeper
+        shell: ps auxwww | grep zookeeper.properties | grep -v grep | awk '{print $2}'
+        register: pid
+      - name: kill 
+        shell: "kill -9 {{ pid.stdout }}"
+        ignore_errors: true
+
+- hosts: node_exporter
+  gather_facts: no
+  tasks: 
+  - name: Handler the error
+    block:
+    - name: Shutdown node-exporter
+      shell: "kill -9 {{ item }}"
+      with_lines:
+        - "cat {{ WORKDIR }}/node-exporter/{{ inventory_hostname }}/node-exporter.pid"
+    rescue:
+      - name: Shutdown node-exporter
+        shell: ps auxwww | grep node-exporter | grep -v grep | awk '{print $2}'
+        register: pid
+      - name: kill 
+        shell: "kill -9 {{ pid.stdout }}"
+        ignore_errors: true
+
+- hosts: alertmanager
+  gather_facts: no
+  tasks: 
+  - name: Handler the error
+    block:
+    - name: Shutdown alertmanager
+      shell: "kill -9 {{ item }}"
+      with_lines:
+        - "cat {{ WORKDIR }}/alertmanager/{{ inventory_hostname }}/alertmanager.pid"
+    rescue:
+      - name: Shutdown alertmanager
+        shell: ps auxwww | grep alertmanager | grep -v grep | awk '{print $2}'
+        register: pid
+      - name: kill 
+        shell: "kill -9 {{ pid.stdout }}"
+        ignore_errors: true
+
+- hosts: prometheus
+  gather_facts: no
+  tasks: 
+  - name: Handler the error
+    block:
+    - name: Shutdown prometheus
+      shell: "kill -9 {{ item }}"
+      with_lines:
+        - "cat {{ WORKDIR }}/prometheus/{{ inventory_hostname }}/prometheus.pid"
+    rescue:
+      - name: Shutdown prometheus
+        shell: ps auxwww | grep prometheus | grep -v grep | awk '{print $2}'
+        register: pid
+      - name: kill 
+        shell: "kill -9 {{ pid.stdout }}"
+        ignore_errors: true

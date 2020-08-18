@@ -1,0 +1,30 @@
+[all:vars]
+gather_facts=false
+become_method=sudo
+ansible_connection=local
+
+[zookeepers]
+127.0.0.1 zookeeper_id=1
+127.0.0.2 zookeeper_id=2
+127.0.0.3 zookeeper_id=3
+
+[kafkas]
+127.0.0.4 kafka_id=104
+127.0.0.5 kafka_id=105
+127.0.0.6 kafka_id=106
+
+[producers]
+
+[consumers]
+
+[prometheus]
+127.0.0.1
+
+[grafana]
+127.0.0.1
+
+[node_exporter]
+127.0.0.1
+
+[alertmanager]
+127.0.0.1

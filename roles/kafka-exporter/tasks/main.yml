@@ -1,0 +1,22 @@
+- name: Unarchive kafka_exporter
+  unarchive:
+    src: "{{ KAFKA_EXPORTER_URL }}"
+    dest: "{{ kafka_path }}/amq-streams/bin"
+    remote_src: yes
+    creates: "{{ kafka_path }}/amq-streams/bin/kafka_exporter_darwin"
+  register: archive_contents
+  when: ansible_distribution == 'MacOSX'
+
+- name: Rename folder
+  command: "cp {{ kafka_path }}/amq-streams/bin/kafka_exporter-1.2.0.darwin-amd64/kafka_exporter {{ kafka_path }}/amq-streams/bin/kafka_exporter_darwin"
+  ignore_errors: true
+  when: ansible_distribution == 'MacOSX'
+
+- name: Cria script de start do kafka exporter
+  template:
+    src: "kafka-exporter.sh.j2"
+    dest: "{{ kafka_path }}/kafka-exporter.sh"
+    mode: '0755'
+
+# - name: Inicia o kafka exporter
+#   shell: "{{ kafka_path }}/kafka-exporter.sh"

@@ -1,0 +1,48 @@
+---
+- hosts: zookeepers
+  gather_facts: no
+  tasks: 
+  - name: Inicia o zookeeper
+    shell: "{{ WORKDIR }}/zookeeper/{{ inventory_hostname }}/zookeeper.sh"
+
+- hosts: kafkas
+  gather_facts: no
+  tasks: 
+  - name: Inicia o kafka
+    shell: "{{ WORKDIR }}/kafka/{{ inventory_hostname }}/kafka.sh"
+  - name: Wait for kafka to be ready
+    wait_for:
+      port: 9092
+      delay: 5
+      host: "{{ inventory_hostname }}"
+    connection: local
+  - name: Inicia o kafka exporter
+    shell: "{{ WORKDIR }}/kafka/{{ inventory_hostname }}/amq-streams/bin/kafka_exporter_darwin --kafka.server={{ inventory_hostname }}:9092"
+    async: 9999999999
+    poll: 0
+    when: KAFKA_EXPORTER == True
+
+- hosts: node_exporter
+  gather_facts: no
+  tasks: 
+  - name: Inicia o node-exporter
+    shell: "{{ WORKDIR }}/node-exporter/{{ inventory_hostname }}/node-exporter.sh"
+    async: 9999999999
+    poll: 0
+
+- hosts: alertmanager
+  gather_facts: no
+  tasks: 
+  - name: Inicia o alertmanager
+    shell: "{{ WORKDIR }}/alertmanager/{{ inventory_hostname }}/alertmanager.sh"
+    async: 9999999999
+    poll: 0
+
+- hosts: prometheus
+  gather_facts: no
+  tasks: 
+  - name: Inicia o prometheus
+    # shell: "{{ WORKDIR }}/prometheus/{{ inventory_hostname }}/prometheus.sh"
+    shell: "/tmp/workdir/prometheus/127.0.0.1/prometheus/prometheus --config.file=/tmp/workdir/prometheus/127.0.0.1/prometheus/etc/prometheus.yml --storage.tsdb.path=/tmp/workdir/prometheus/127.0.0.1/prometheus/data --web.console.templates=/tmp/workdir/prometheus/127.0.0.1/prometheus/consoles --web.console.libraries=/tmp/workdir/prometheus/127.0.0.1/prometheus/console_libraries --web.listen-address=127.0.0.1:9090 --web.external-url="
+    async: 9999999999
+    poll: 0

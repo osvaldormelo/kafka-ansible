@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export KAFKA_HEAP_OPTS="-Xms300M -Xmx300M"
+
+###REPLACE1
+
+###REPLACE2
+
+{{ zookeeper_path }}/amq-streams/bin/zookeeper-server-start.sh {{ zookeeper_path }}/amq-streams/config/zookeeper.properties &
+
+PID_ZOOKEEPER=$!
+
+echo $PID_ZOOKEEPER > {{ zookeeper_path }}/zookeeper.pid

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+{% if ansible_distribution == 'MacOSX' %}
+
+{{ kafka_path }}/amq-streams/bin/kafka_exporter_darwin --kafka.server={{ inventory_hostname }}:9092 &
+
+{% else %}
+
+{{ kafka_path }}/amq-streams/bin/kafka_exporter --kafka.server={{ inventory_hostname }}:9092 &
+
+{% endif %}
+
+PID_KAFKA_EXPORTER=$!
+
+echo $PID_KAFKA_EXPORTER > {{ kafka_path }}/kafka-exporter.pid

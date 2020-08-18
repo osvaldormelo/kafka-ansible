@@ -1,0 +1,48 @@
+- name: Set prometheus path
+  set_fact:
+    prometheus_path: "{{ WORKDIR }}/prometheus/{{ inventory_hostname }}"
+
+- name: "Cria pasta {{ prometheus_path }}"
+  file:
+    path: "{{ prometheus_path }}"
+    state: directory
+    recurse: yes
+
+- name: Unarchive prometheus
+  unarchive:
+    src: "{{ PROMETHEUS_BINARY_URL }}"
+    dest: "{{ prometheus_path }}/"
+    remote_src: yes
+    creates: "{{ prometheus_path }}/prometheus-2.20.1.darwin-amd64"
+  register: archive_contents
+
+- name: Rename folder
+  command: "mv {{ prometheus_path }}/prometheus-2.20.1.darwin-amd64 {{ prometheus_path }}/prometheus"
+  ignore_errors: true
+
+- name: Create prometheus folders
+  file:
+    path: "{{ prometheus_path }}/prometheus/{{ item }}"
+    state: directory
+    mode: '775'
+  loop:
+    - rules
+    - rules.d
+    - files_sd
+    - data
+    - etc
+
+- name: Create prometheus config file
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_path }}/prometheus/etc/prometheus.yml"
+    mode: '775'
+
+- name: Cria script de start do prometheus
+  template:
+    src: "prometheus.sh.j2"
+    dest: "{{ prometheus_path }}/prometheus.sh"
+    mode: '0755'
+
+# - name: Inicia o prometheus
+#   shell: "{{ prometheus_path }}/prometheus.sh"
