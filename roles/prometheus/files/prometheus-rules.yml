@@ -2,7 +2,52 @@ groups:
 - name: prometheus
   rules:
     - alert: PrometheusJobMissing
-      expr: absent(up{job="my-job"})
+      expr: absent(up{job="node-exporter"})
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus job missing (instance {{ $labels.instance }})"
+        description: "A Prometheus job has disappeared\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusJobMissing
+      expr: absent(up{job="prometheus"})
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus job missing (instance {{ $labels.instance }})"
+        description: "A Prometheus job has disappeared\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusJobMissing
+      expr: absent(up{job="zookeeper-jmx-exporter"})
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus job missing (instance {{ $labels.instance }})"
+        description: "A Prometheus job has disappeared\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusJobMissing
+      expr: absent(up{job="kafka-exporter"})
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus job missing (instance {{ $labels.instance }})"
+        description: "A Prometheus job has disappeared\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusJobMissing
+      expr: absent(up{job="grafana_metrics"})
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus job missing (instance {{ $labels.instance }})"
+        description: "A Prometheus job has disappeared\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusJobMissing
+      expr: absent(up{job="kafka-jmx-exporter"})
       for: 5m
       labels:
         severity: warning

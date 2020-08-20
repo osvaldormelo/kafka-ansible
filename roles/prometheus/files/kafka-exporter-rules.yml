@@ -1,6 +1,7 @@
 groups:
 - name: kafka_exporter
   rules:
+
     - alert: UnderReplicatedPartition
       expr: kafka_topic_partition_under_replicated_partition > 0
       for: 10s
@@ -9,6 +10,7 @@ groups:
       annotations:
         summary: 'Topic has under-replicated partitions'
         description: 'Topic  {{ $labels.topic }} has {{ $value }} under-replicated partition {{ $labels.partition }}'
+
     - alert: TooLargeConsumerGroupLag
       expr: kafka_consumergroup_lag > 1000
       for: 10s
@@ -16,7 +18,8 @@ groups:
         severity: warning
       annotations:
         summary: 'Consumer group lag is too big'
-        description: 'Consumer group {{ $labels.consumergroup}} lag is too big ({{ $value }}) on topic {{ $labels.topic }}/partition {{ $labels.partition }}'
+        description: 'Consumer group {{ $labels.consumergroup }} lag is too big ({{ $value }}) on topic {{ $labels.topic }}/partition {{ $labels.partition }}'
+
     - alert: NoMessageForTooLong
       expr: changes(kafka_topic_partition_current_offset{topic!="__consumer_offsets"}[10m]) == 0
       for: 10s
