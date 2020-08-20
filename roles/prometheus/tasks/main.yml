@@ -38,10 +38,15 @@
     dest: "{{ prometheus_path }}/prometheus/rules/{{ item }}"
     mode: '775'
   loop:
-    - kafka-rules.yml
-    - prometheus-rules.yml
-    - host-rules.yml
     - alertmanager-rules.yml
+    - host-rules.yml
+    - jvm-rules.yml
+    - kafka-connect-rules.yml
+    - kafka-exporter-rules.yml
+    - kafka-rules.yml
+    - postgresql-rules.yml
+    - prometheus-rules.yml
+    - zookeeper-rules.yml
 
 - name: Create prometheus config file
   template:

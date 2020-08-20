@@ -1,5 +1,5 @@
 groups:
-- name: Kafka_Alerts
+- name: alertmanager
   rules:
     - alert: PrometheusAlertmanagerConfigurationReloadFailure
       expr: alertmanager_config_last_reload_successful != 1

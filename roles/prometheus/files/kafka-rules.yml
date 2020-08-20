@@ -1,6 +1,6 @@
 
 groups:
-- name: Kafka_Alerts
+- name: kafka
   rules:
     - alert: Offline_Partiton_Count
       expr: sum(kafka_controller_kafkacontroller_offlinepartitionscount{executor_name="kafka"})by(service_name)  > 0
@@ -145,3 +145,133 @@ groups:
       annotations:
         summary: "Kafka consumers group (instance {{ $labels.instance }})"
         description: "Kafka consumers group\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: KafkaDown
+      expr: up{instance=~"kafka-.+", job="jmx-exporter"} == 0
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        title: Kafka broker is down
+        description: Kafka broker is down on {{ $labels.instance }}. Could not scrape jmx-exporter for 3m.
+
+    - alert: KafkaNoController
+      expr: sum(kafka_controller_kafkacontroller_activecontrollercount) < 1
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        title: Kafka cluster has no controller
+        description: Kafka controller count < 1, cluster is probably broken.
+
+    - alert: KafkaOfflinePartitions
+      expr: sum(kafka_controller_kafkacontroller_offlinepartitionscount) > 0
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        title: Kafka cluster has offline partitions
+        description: "{{ $value }} partitions in Kafka went offline (have no leader), cluster is probably broken."
+
+    - alert: KafkaUnderreplicatedPartitions
+      expr: sum(kafka_cluster_partition_underreplicated) > 10
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        title: Kafka cluster has underreplicated partitions
+        description: "{{ $value }} partitions in Kafka are under replicated"
+
+    - alert: PartitionCountHigh
+      expr: max(kafka_server_replicamanager_partitioncount)  by (kubernetes_namespace, kafka_cr) > 100
+      for: 3m
+      labels:
+        severity: alert
+      annotations:
+        description: 'broker {{ $labels.brokerId }} has high partition count'
+
+    
+
+
+    - alert: KafkaRunningOutOfSpace
+      expr: kubelet_volume_stats_available_bytes{persistentvolumeclaim=~"data-([0-9]+)?-(.+)-kafka-[0-9]+"} < 5368709120
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Kafka is running out of free disk space'
+        description: 'There are only {{ $value }} bytes available at {{ $labels.persistentvolumeclaim }} PVC'
+    - alert: UnderReplicatedPartitions
+      expr: kafka_server_replicamanager_underreplicatedpartitions > 0
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Kafka under replicated partitions'
+        description: 'There are {{ $value }} under replicated partitions on {{ $labels.kubernetes_pod_name }}'
+    - alert: AbnormalControllerState
+      expr: sum(kafka_controller_kafkacontroller_activecontrollercount) != 1
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Kafka abnormal controller state'
+        description: 'There are {{ $value }} active controllers in the cluster'
+    - alert: OfflinePartitions
+      expr: sum(kafka_controller_kafkacontroller_offlinepartitionscount) > 0
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Kafka offline partitions'
+        description: 'One or more partitions have no leader'
+    - alert: UnderMinIsrPartitionCount
+      expr: kafka_server_replicamanager_underminisrpartitioncount > 0
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Kafka under min ISR partitions'
+        description: 'There are {{ $value }} partitions under the min ISR on {{ $labels.kubernetes_pod_name }}'
+    - alert: OfflineLogDirectoryCount
+      expr: kafka_log_logmanager_offlinelogdirectorycount > 0
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Kafka offline log directories'
+        description: 'There are {{ $value }} offline log directories on {{ $labels.kubernetes_pod_name }}'
+    - alert: ScrapeProblem
+      expr: up{kubernetes_namespace!~"openshift-.+",kubernetes_pod_name=~".+-kafka-[0-9]+"} == 0
+      for: 3m
+      labels:
+        severity: major
+      annotations:
+        summary: 'Prometheus unable to scrape metrics from {{ $labels.kubernetes_pod_name }}/{{ $labels.instance }}'
+        description: 'Prometheus was unable to scrape metrics from {{ $labels.kubernetes_pod_name }}/{{ $labels.instance }} for more than 3 minutes'
+    - alert: ClusterOperatorContainerDown
+      expr: count((container_last_seen{container="strimzi-cluster-operator"} > (time() - 90))) < 1 or absent(container_last_seen{container="strimzi-cluster-operator"})
+      for: 1m
+      labels:
+        severity: major
+      annotations:
+        summary: 'Cluster Operator down'
+        description: 'The Cluster Operator has been down for longer than 90 seconds'
+    - alert: KafkaBrokerContainersDown
+      expr: absent(container_last_seen{container="kafka",pod=~".+-kafka-[0-9]+"})
+      for: 3m
+      labels:
+        severity: major
+      annotations:
+        summary: 'All `kafka` containers down or in CrashLookBackOff status'
+        description: 'All `kafka` containers have been down or in CrashLookBackOff status for 3 minutes'
+    - alert: KafkaContainerRestartedInTheLast5Minutes
+      expr: count(count_over_time(container_last_seen{container="kafka"}[5m])) > 2 * count(container_last_seen{container="kafka",pod=~".+-kafka-[0-9]+"})
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: 'One or more Kafka containers restarted too often'
+        description: 'One or more Kafka containers were restarted too often within the last 5 minutes'
+
+    

@@ -1,0 +1,125 @@
+groups:
+- name: zookeeper
+  rules:
+
+    - alert: Zookeeper is down
+      expr: up{instance=~"zookeeper-.+", job="jmx-exporter"} == 0
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        title: Zookeeper instance is down
+        description: Zookeeper is down on {{ $labels.instance }}. Could not scrape jmx-exporter for 3 minutes>
+    
+    - alert: Zookeeper is slow
+      expr: max_over_time(zookeeper_MaxRequestLatency[1m]) > 10000
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        title: Zookeeper high latency
+        description: Zookeeper latency is {{ $value }}ms (aggregated over 1m) on {{ $labels.instance }}.
+
+    - alert: Zookeeper ensemble is broken
+      expr: sum(up{job="jmx-exporter", instance=~"zookeeper-.+"}) < 2
+      for: 1m
+      labels:
+        severity: page
+      annotations:
+        title: Zookeeper ensemble is broken
+        description: Zookeeper ensemble is broken, it has {{ $value }} nodes in it.
+
+    - alert: HighWatchers
+      expr: zookeeper_server_watches_count{job="zookeeper"} > 1000000
+      for: 30s
+      labels:
+        status: warning
+      annotations:
+        summary: "Watchers of Zookeeper server is over than 1000k."
+        description: "Watchers of Zookeeper server {{ $labels.instance }} is over than 1000k, current value is {{ $value }}."
+
+    - alert: HighEphemerals
+      expr: zookeeper_server_ephemerals_count{job="zookeeper"} > 10000
+      for: 30s
+      labels:
+        status: warning
+      annotations:
+        summary: "Ephemeral nodes of Zookeeper server is over than 10k."
+        description: "Ephemeral nodes of Zookeeper server {{ $labels.instance }} is over than 10k, current value is {{ $value }}."
+
+    - alert: HighConnections
+      expr: zookeeper_server_connections{job="zookeeper"} > 10000
+      for: 30s
+      labels:
+        status: warning
+      annotations:
+        summary: "Connections of Zookeeper server is over than 10k."
+        description: "Connections of Zookeeper server {{ $labels.instance }} is over than 10k, current value is {{ $value }}."
+
+    - alert: HighDataSize
+      expr: zookeeper_server_data_size_bytes{job="zookeeper"} > 107374182400
+      for: 30s
+      labels:
+        status: warning
+      annotations:
+        summary: "Data size of Zookeeper server is over than 100TB."
+        description: "Data size of Zookeeper server {{ $labels.instance }} is over than 100TB, current value is {{ $value }}."
+
+    - alert: HighRequestThroughput
+      expr: sum(irate(zookeeper_server_requests{job="zookeeper"}[30s])) by (type) > 1000
+      for: 30s
+      labels:
+        status: warning
+      annotations:
+        summary: "Request throughput on Zookeeper server is over than 1000 in 30 seconds."
+        description: "Request throughput of {{ $labels.type}} on Zookeeper server {{ $labels.instance }} is over than 1k, current value is {{ $value }}."
+
+    - alert: HighRequestLatency
+      expr: zookeeper_server_requests_latency_ms{job="zookeeper", quantile="0.99"} > 100
+      for: 30s
+      labels:
+        status: warning
+      annotations:
+        summary: "Request latency on Zookeeper server is over than 100ms."
+        description: "Request latency {{ $labels.type }} in p99 on Zookeeper server {{ $labels.instance }} is over than 100ms, current value is {{ $value }} ms."
+
+    - alert: AvgRequestLatency
+      expr: zookeeper_avgrequestlatency > 10
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Zookeeper average request latency'
+        description: 'The average request latency is {{ $value }} on {{ $labels.kubernetes_pod_name }}'
+    - alert: OutstandingRequests
+      expr: zookeeper_outstandingrequests > 10
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Zookeeper outstanding requests'
+        description: 'There are {{ $value }} outstanding requests on {{ $labels.kubernetes_pod_name }}'
+    - alert: ZookeeperRunningOutOfSpace
+      expr: kubelet_volume_stats_available_bytes{persistentvolumeclaim=~"data-(.+)-zookeeper-[0-9]+"} < 5368709120
+      for: 10s
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Zookeeper is running out of free disk space'
+        description: 'There are only {{ $value }} bytes available at {{ $labels.persistentvolumeclaim }} PVC'
+    - alert: ZookeeperContainerRestartedInTheLast5Minutes
+      expr: count(count_over_time(container_last_seen{container="zookeeper"}[5m])) > 2 * count(container_last_seen{container="zookeeper",pod=~".+-zookeeper-[0-9]+"})
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: 'One or more Zookeeper containers were restarted too often'
+        description: 'One or more Zookeeper containers were restarted too often within the last 5 minutes. This alert can be ignored when the Zookeeper cluster is scaling up'
+    - alert: ZookeeperContainersDown
+      expr: absent(container_last_seen{container="zookeeper",pod=~".+-zookeeper-[0-9]+"})
+      for: 3m
+      labels:
+        severity: major
+      annotations:
+        summary: 'All `zookeeper` containers in the Zookeeper pods down or in CrashLookBackOff status'
+        description: 'All `zookeeper` containers in the Zookeeper pods have been down or in CrashLookBackOff status for 3 minutes'

@@ -1,5 +1,5 @@
 groups:
-- name: Prometheus_Alerts
+- name: prometheus
   rules:
     - alert: PrometheusJobMissing
       expr: absent(up{job="my-job"})
