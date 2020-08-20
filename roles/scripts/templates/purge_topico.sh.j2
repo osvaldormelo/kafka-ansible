@@ -1,0 +1,13 @@
+#!/bin/bash
+if [ "$#" -ne 1 ]; then
+    echo "Uso: ./lista_mensagens.sh <topico>";
+    exit;
+fi
+TOPICO=$1
+
+/opt/kafka-2.5/bin/kafka-topics.sh --zookeeper {{ zookeeperlist_ssl }} --alter --topic $TOPICO --config retention.ms=1000
+
+echo "Aguardando 1 min..."
+sleep 60s
+
+/opt/kafka-2.5/bin/kafka-topics.sh --zookeeper {{ zookeeperlist_ssl }} --alter --topic $TOPICO --delete-config retention.ms

@@ -10,10 +10,10 @@
 
 - name: Unarchive prometheus
   unarchive:
-    src: "{{ PROMETHEUS_BINARY_URL }}"
+    src: "{{ DOWNLOAD_DIR }}/prometheus.tar.gz"
     dest: "{{ prometheus_path }}/"
     remote_src: yes
-    creates: "{{ prometheus_path }}/prometheus-2.20.1.darwin-amd64"
+    creates: "{{ prometheus_path }}/prometheus.tar.gz"
   register: archive_contents
 
 - name: Rename folder
@@ -31,6 +31,17 @@
     - files_sd
     - data
     - etc
+
+- name: Create kafka alerts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ prometheus_path }}/prometheus/rules/{{ item }}"
+    mode: '775'
+  loop:
+    - kafka-rules.yml
+    - prometheus-rules.yml
+    - host-rules.yml
+    - alertmanager-rules.yml
 
 - name: Create prometheus config file
   template:

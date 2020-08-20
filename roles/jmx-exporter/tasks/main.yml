@@ -7,11 +7,17 @@
     path: "{{ jmx_exporter_path }}"
     state: directory
 
-- name: Download Jar
-  get_url:
-    url: "{{ JMX_EXPORTER_URL }}"
+- name: Copy jmx-exporter
+  copy:
+    src: "{{ DOWNLOAD_DIR }}/jmx_exporter.jar"
     dest: "{{ jmx_exporter_path }}/jmx_exporter.jar"
     mode: "0755"
+
+# - name: Download Jar
+#   get_url:
+#     url: "{{ JMX_EXPORTER_URL }}"
+#     dest: "{{ jmx_exporter_path }}/jmx_exporter.jar"
+#     mode: "0755"
 
 # - name: Copy config.yml to /opt/jmx-exporter for Kafka
 #   template:

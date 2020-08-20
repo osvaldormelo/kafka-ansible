@@ -1,0 +1,2 @@
+#!/bin/bash
+{{ producer_path }}/amq-streams/bin/kafka-producer-perf-test.sh --print-metrics --topic warmup --num-records 100000 --record-size 512 --throughput 10 --producer.config {{ producer_path }}/producer.properties

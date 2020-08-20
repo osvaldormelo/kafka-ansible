@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ "$#" -ne 1 ]; then
+    echo "Uso: ./lista_mensagens.sh <topico>";
+    exit;
+fi
+TOPICO=$1
+
+/opt/kafka/bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list {{ brokerlist }} --topic $TOPICO --time -1 --offsets 1 | awk -F ":" '{sum += $3} END {print sum}'

@@ -3,6 +3,7 @@
   gather_facts: no
   roles:
     - common
+  tags: [ common ]
 
 - hosts: zookeepers
   gather_facts: no
@@ -12,6 +13,7 @@
   - include_role:
       name: jmx-exporter
     when: ZOOKEEPER_MONITORING == True
+  tags: [ zookeeper ]
 
 - hosts: kafkas
   gather_facts: yes
@@ -24,6 +26,10 @@
   - include_role:
       name: kafka-exporter
     when: KAFKA_EXPORTER == True
+  - include_role:
+      name: jolokia
+    when: JOLOKIA_MONITORING == True
+  tags: [ kafka ]
 
 - hosts: node_exporter
   gather_facts: yes
@@ -31,6 +37,7 @@
   - include_role:
       name: node-exporter
     when: NODE_EXPORTER == True
+  tags: [ node-exporter ]
 
 - hosts: prometheus
   gather_facts: no
@@ -38,6 +45,7 @@
   - include_role:
       name: prometheus
     when: PROMETHEUS == True
+  tags: [ prometheus ]
 
 - hosts: alertmanager
   gather_facts: yes
@@ -45,6 +53,7 @@
   - include_role:
       name: alertmanager
     when: ALERT_MANAGER == True
+  tags: [ alertmanager ]
 
 - hosts: grafana
   gather_facts: yes
@@ -52,3 +61,29 @@
   - include_role:
       name: grafana
     when: GRAFANA == True
+  tags: [ grafana ]
+
+- hosts: producer
+  gather_facts: no
+  tasks: 
+  - include_role:
+      name: producer
+    when: PRODUCER == True
+  tags: [ producer ]
+
+- hosts: consumer
+  gather_facts: no
+  tasks: 
+  - include_role:
+      name: consumer
+    when: CONSUMER == True
+  tags: [ consumer ]
+
+- hosts: scripts
+  gather_facts: no
+  tasks: 
+  - include_role:
+      name: scripts
+    when: INSTALL_SCRIPTS == True
+  tags: [ scripts ]
+

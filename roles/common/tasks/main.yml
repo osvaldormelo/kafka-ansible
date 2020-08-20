@@ -1,0 +1,47 @@
+- name: "Cria pasta {{ DOWNLOAD_DIR }}"
+  file:
+    path: "{{ DOWNLOAD_DIR }}"
+    state: directory
+    recurse: yes
+
+- name: Download prometheus
+  get_url:
+    url: "{{ PROMETHEUS_BINARY_URL }}"
+    dest: "{{ DOWNLOAD_DIR }}/prometheus.tar.gz"
+    mode: '0755'
+
+- name: Download jmx-exporter
+  get_url:
+    url: "{{ JMX_EXPORTER_URL }}"
+    dest: "{{ DOWNLOAD_DIR }}/jmx_exporter.jar"
+    mode: '0755'
+
+- name: Download jolokia
+  get_url:
+    url: "{{ JOLOKIA_BINARY_URL }}"
+    dest: "{{ DOWNLOAD_DIR }}/jolokia-jvm-agent.jar"
+    mode: '0755'
+
+- name: Download kafka_exporter
+  get_url:
+    url: "{{ KAFKA_EXPORTER_URL }}"
+    dest: "{{ DOWNLOAD_DIR }}/kafka_exporter.tar.gz"
+    mode: '0755'
+
+- name: Download node_exporter
+  get_url:
+    url: "{{ NODE_EXPORTER_URL }}"
+    dest: "{{ DOWNLOAD_DIR }}/node_exporter.tar.gz"
+    mode: '0755'
+
+- name: Download grafana
+  get_url:
+    url: "{{ GRAFANA_BINARY_URL }}"
+    dest: "{{ DOWNLOAD_DIR }}/grafana.tar.gz"
+    mode: '0755'
+
+- name: Download alertmanager
+  get_url:
+    url: "{{ ALERT_MANAGER_BINARY_URL }}"
+    dest: "{{ DOWNLOAD_DIR }}/alertmanager.tar.gz"
+    mode: '0755'

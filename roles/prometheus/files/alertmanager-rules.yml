@@ -1,0 +1,56 @@
+groups:
+- name: Kafka_Alerts
+  rules:
+    - alert: PrometheusAlertmanagerConfigurationReloadFailure
+      expr: alertmanager_config_last_reload_successful != 1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus AlertManager configuration reload failure (instance {{ $labels.instance }})"
+        description: "AlertManager configuration reload error\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusAlertmanagerConfigNotSynced
+      expr: count(count_values("config_hash", alertmanager_config_hash)) > 1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus AlertManager config not synced (instance {{ $labels.instance }})"
+        description: "Configurations of AlertManager cluster instances are out of sync\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusAlertmanagerE2eDeadManSwitch
+      expr: vector(1)
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Prometheus AlertManager E2E dead man switch (instance {{ $labels.instance }})"
+        description: "Prometheus DeadManSwitch is an always-firing alert. It's used as an end-to-end test of Prometheus through the Alertmanager.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusAlertmanagerNotificationFailing
+      expr: rate(alertmanager_notifications_failed_total[1m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Prometheus AlertManager notification failing (instance {{ $labels.instance }})"
+        description: "Alertmanager is failing sending notifications\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusTargetScrapingSlow
+      expr: prometheus_target_interval_length_seconds{quantile="0.9"} > 60
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus target scraping slow (instance {{ $labels.instance }})"
+        description: "Prometheus is scraping exporters slowly\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: PrometheusTargetScrapeDuplicate
+      expr: increase(prometheus_target_scrapes_sample_duplicate_timestamp_total[5m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Prometheus target scrape duplicate (instance {{ $labels.instance }})"
+        description: "Prometheus has many samples rejected due to duplicate timestamps but different values\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

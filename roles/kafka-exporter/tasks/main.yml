@@ -1,6 +1,6 @@
 - name: Unarchive kafka_exporter
   unarchive:
-    src: "{{ KAFKA_EXPORTER_URL }}"
+    src: "{{ DOWNLOAD_DIR }}/kafka_exporter.tar.gz"
     dest: "{{ kafka_path }}/amq-streams/bin"
     remote_src: yes
     creates: "{{ kafka_path }}/amq-streams/bin/kafka_exporter_darwin"

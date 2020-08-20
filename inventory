@@ -13,9 +13,11 @@ ansible_connection=local
 127.0.0.5 kafka_id=105
 127.0.0.6 kafka_id=106
 
-[producers]
+[producer]
+127.0.0.1
 
-[consumers]
+[consumer]
+127.0.0.1
 
 [prometheus]
 127.0.0.1
@@ -27,4 +29,7 @@ ansible_connection=local
 127.0.0.1
 
 [alertmanager]
+127.0.0.1
+
+[scripts]
 127.0.0.1

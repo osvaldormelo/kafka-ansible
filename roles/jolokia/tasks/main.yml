@@ -1,0 +1,15 @@
+- name: Set jolokia path
+  set_fact:
+    jolokia_path: "{{ WORKDIR }}/jolokia/{{ inventory_hostname }}"
+
+- name: "Cria pasta {{ jolokia_path }}"
+  file:
+    path: "{{ jolokia_path }}"
+    state: directory
+    recurse: yes
+
+- name: Copy jolokia
+  copy:
+    src: "{{ DOWNLOAD_DIR }}/"
+    dest: "{{ jolokia_path }}/jolokia-jvm-agent.jar"
+  register: archive_contents

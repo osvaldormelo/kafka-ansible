@@ -1,0 +1,17 @@
+#!/bin/bash
+if [ "$#" -ne 2 ]; then
+    echo "Uso: ./altera_min_insync_replica.sh <topico> <min-insync-replica>";
+    exit;
+fi
+
+TOPICO=$1
+MIN_INSYNC_REPLICA=$2
+
+export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/utils/jaas.conf -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.trustStore.location=/var/private/ssl/kafka.server.truststore -Dzookeeper.ssl.trustStore.password=changeme -Dzookeeper.ssl.trustStore.type=PKCS12"
+
+/opt/kafka-2.5/bin/kafka-configs.sh \
+    --zookeeper {{ zookeeperlist_ssl }} \
+    --entity-type topics \
+    --entity-name $TOPICO \
+    --alter \
+    --add-config min.insync.replicas=$MIN_INSYNC_REPLICA

@@ -1,0 +1,32 @@
+- name: Set producer path
+  set_fact:
+    producer_path: "{{ WORKDIR }}/producer/{{ inventory_hostname }}"
+
+- name: "Cria pasta {{ producer_path }}"
+  file:
+    path: "{{ producer_path }}"
+    state: directory
+    recurse: yes
+
+- name: Baixa e descompacta binário da instalação
+  unarchive:
+    src: "{{ playbook_dir }}/download_files/{{ KAFKA_BINARY_NAME }}"
+    dest: "{{ producer_path }}"
+    list_files: yes
+    creates: "{{ producer_path }}/amq-streams"
+  register: archive_contents
+
+- name: Rename folder
+  command: "mv {{ producer_path }}/{{ archive_contents.files[0] }} {{ producer_path }}/amq-streams"
+  ignore_errors: true
+
+- name: Gera scripts do producer
+  template:
+    src: "producer.sh.j2"
+    dest: "{{ producer_path }}/producer.sh"
+    mode: "0755"
+
+- name: Cria arquivo de properties do producer
+  template:
+    src: "producer.properties.j2"
+    dest: "{{ producer_path }}/producer.properties"

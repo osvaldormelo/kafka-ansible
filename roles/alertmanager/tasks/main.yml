@@ -10,10 +10,10 @@
 
 - name: Unarchive alertmanager
   unarchive:
-    src: "{{ ALERT_MANAGER_BINARY_URL }}"
+    src: "{{ DOWNLOAD_DIR }}/alertmanager.tar.gz"
     dest: "{{ alertmanager_path }}/"
     remote_src: yes
-    creates: "{{ alertmanager_path }}/alertmanager"
+    creates: "{{ alertmanager_path }}/alertmanager-0.21.0.darwin-amd64"
   register: archive_contents
   when: ansible_distribution == 'MacOSX'
 

@@ -10,7 +10,7 @@
 
 - name: Unarchive node_exporter
   unarchive:
-    src: "{{ NODE_EXPORTER_URL }}"
+    src: "{{ DOWNLOAD_DIR }}/node_exporter.tar.gz"
     dest: "{{ node_exporter_path }}/"
     remote_src: yes
     creates: "{{ node_exporter_path }}/node_exporter-1.0.1.darwin-amd64"

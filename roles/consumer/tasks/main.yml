@@ -1,0 +1,32 @@
+- name: Set consumer path
+  set_fact:
+    consumer_path: "{{ WORKDIR }}/consumer/{{ inventory_hostname }}"
+
+- name: "Cria pasta {{ consumer_path }}"
+  file:
+    path: "{{ consumer_path }}"
+    state: directory
+    recurse: yes
+
+- name: Baixa e descompacta binário da instalação
+  unarchive:
+    src: "{{ playbook_dir }}/download_files/{{ KAFKA_BINARY_NAME }}"
+    dest: "{{ consumer_path }}"
+    list_files: yes
+    creates: "{{ consumer_path }}/amq-streams"
+  register: archive_contents
+
+- name: Rename folder
+  command: "mv {{ consumer_path }}/{{ archive_contents.files[0] }} {{ consumer_path }}/amq-streams"
+  ignore_errors: true
+
+- name: Gera scripts do consumer
+  template:
+    src: "consumer.sh.j2"
+    dest: "{{ consumer_path }}/consumer.sh"
+    mode: "0755"
+
+- name: Cria arquivo de consumer.properties
+  template:
+    src: "producer.properties.j2"
+    dest: /opt/kafka/config/producer.properties

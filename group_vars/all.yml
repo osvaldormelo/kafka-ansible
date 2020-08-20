@@ -1,4 +1,5 @@
 WORKDIR: /tmp/workdir
+DOWNLOAD_DIR: /tmp/downloads
 
 KAFKA_BINARY_NAME: amq-streams-1.5.0-bin.zip
 PROMETHEUS_BINARY_URL: https://github.com/prometheus/prometheus/releases/download/v2.20.1/prometheus-2.20.1.darwin-amd64.tar.gz
@@ -16,7 +17,11 @@ NODE_EXPORTER: true
 CONSUMER_MONITORING: true
 PRODUCER_MONITORING: true
 GRAFANA_MONITORING: true
+JOLOKIA_MONITORING: true
 
 PROMETHEUS: true
 GRAFANA: true
 ALERT_MANAGER: true
+PRODUCER: true
+CONSUMER: true
+INSTALL_SCRIPTS: true

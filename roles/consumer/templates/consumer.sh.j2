@@ -1,0 +1,3 @@
+#!/bin/bash
+
+{{ consumer_path }}/amq-streams/bin/kafka-consumer-perf-test.sh --group warmup --topic warmup --messages 100000 --broker-list {% for host in groups['kafkas'] %}{{ hostvars[host]['inventory_hostname'] }}:9092{% if not loop.last %},{% endif %}{% endfor %}
