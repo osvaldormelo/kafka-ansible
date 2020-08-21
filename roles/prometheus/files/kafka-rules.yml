@@ -3,129 +3,129 @@ groups:
 - name: kafka
   rules:
     - alert: Offline_Partiton_Count
-      expr: sum(kafka_controller_kafkacontroller_offlinepartitionscount{executor_name="kafka"})by(service_name)  > 0
+      expr: sum(kafka_controller_kafkacontroller_offlinepartitionscount{job="kafka-jmx-exporter"})by(job)  > 0
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: {{ $value }} partitons offline'
+        summary: 'Kafka {{ $labels.job }}: {{ $value }} partitons offline'
         description: 'After successful leader election, if the leader for partition dies, then the partition moves to the OfflinePartition state. Offline partitions are not available for reading and writing. Restart the brokers, if needed, and check the logs for errors.'
 
     - alert: Under_Replicated_Partition_Count
-      expr: sum(kafka_server_replicamanager_underreplicatedpartitions{executor_name="kafka"})by(service_name) > 0
+      expr: sum(kafka_server_replicamanager_underreplicatedpartitions{job="kafka-jmx-exporter"})by(job) > 0
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: {{ $value }} under replicated partitons'
+        summary: 'Kafka {{ $labels.job }}: {{ $value }} under replicated partitons'
         description: 'Under-replicated partitions means that one or more replicas are not available. This is usually because a broker is down.  Restart the broker, and check for errors in the logs.'
 
     - alert: Active_Controller
-      expr: sum(kafka_controller_kafkacontroller_activecontrollercount{executor_name="kafka"})by(service_name) != 1
+      expr: sum(kafka_controller_kafkacontroller_activecontrollercount{job="kafka-jmx-exporter"})by(job) != 1
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: No active controller'
+        summary: 'Kafka {{ $labels.job }}: No active controller'
         description: 'No broker in the cluster is reporting as the active controller in the last 1 minute interval. During steady state there should be only one active controller per cluster.'
 
     - alert: Unclean_Leader_Election
-      expr: max(kafka_controller_controllerstats_uncleanleaderelectionspersec_5minuterate{executor_name="kafka"})by(service_name) != 0
+      expr: max(kafka_controller_controllerstats_uncleanleaderelections_total{job="kafka-jmx-exporter"})by(job) != 0
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: {{ $value }} unclean leader elections'
+        summary: 'Kafka {{ $labels.job }}: {{ $value }} unclean leader elections'
         description: '{{ $value }} unclean partition leader elections in the cluster reported in the last 1 minute interval. When unclean leader election is held among out-of-sync replicas, there is a possibility of data loss if any messages were not synced prior to the loss of the former leader. So if the number of unclean elections is greater than 0, investigate broker logs to determine why leaders were re-elected, and look for WARN or ERROR messages. Consider setting the broker configuration parameter unclean.leader.election.enable to false so that a replica outside of the set of in-sync replicas is never elected leader.'
 
     - alert: ISR_Expand_Rate
-      expr: sum(kafka_server_replicamanager_isrexpandspersec_5minuterate)by(service_name) != 0
+      expr: sum(kafka_server_replicamanager_isrexpands_total{job="kafka-jmx-exporter"})by(job) != 0
       for: 1m
       labels:
         severity: warning
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: {{ $value }} ISR Expansion Rate'
+        summary: 'Kafka {{ $labels.job }}: {{ $value }} ISR Expansion Rate'
         description: 'If a broker goes down, ISR for some of the partitions shrink. When that broker is up again, ISRs are expanded once the replicas are fully caught up. Other than that, the expected value for ISR expansion rate is 0. If ISR is expanding and shrinking frequently, adjust Allowed replica lag.'
 
     - alert: ISR_Shrink_Rate
-      expr: sum(kafka_server_replicamanager_isrshrinkspersec_5minuterate)by(service_name) != 0
+      expr: sum(kafka_server_replicamanager_isrshrinks_total{job="kafka-jmx-exporter"})by(job) != 0
       for: 1m
       labels:
         severity: warning
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: {{ $value }} ISR Shrink Rate'
+        summary: 'Kafka {{ $labels.job }}: {{ $value }} ISR Shrink Rate'
         description: 'If a broker goes down, ISR for some of the partitions shrink. When that broker is up again, ISRs are expanded once the replicas are fully caught up. Other than that, the expected value for ISR shrink rate is 0. If ISR is expanding and shrinking frequently, adjust Allowed replica lag.'
 
     - alert: Broker_Count
-      expr: count(kafka_server_kafkaserver_brokerstate{executor_name="kafka"})by(service_name) == 0
+      expr: count(kafka_server_kafkaserver_brokerstate{job="kafka-jmx-exporter"})by(job) == 0
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: No Brokers online!'
+        summary: 'Kafka {{ $labels.job }}: No Brokers online!'
         description: 'Broker count is 0'
 
     - alert: Network_Processor_Idle_Percent
-      expr: avg(sum(kafka_network_processor_idlepercent{executor_name="kafka"})by(service_name, task_name))by(service_name) < 0.3
+      expr: avg(sum(kafka_network_processor_idlepercent{job="kafka-jmx-exporter"})by(job))by(job) < 0.3
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: Network Processor Idle Percent is {{ $value }}!'
+        summary: 'Kafka {{ $labels.job }}: Network Processor Idle Percent is {{ $value }}!'
         description: 'The average fraction of time the network processors are idle. A lower value {{ $value }} indicates that the network workload of the broker is very high.'
 
     - alert: Request_Handler_Idle_Percent
-      expr: avg(kafka_server_kafkarequesthandlerpool_requesthandleravgidlepercent_meanrate)by(service_name) < 0.3
+      expr: avg(kafka_server_kafkarequesthandlerpool_requesthandleravgidlepercent_count{job="kafka-jmx-exporter"})by(job) < 0.3
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: Request Handler Idle Percent is {{ $value }}!'
+        summary: 'Kafka {{ $labels.job }}: Request Handler Idle Percent is {{ $value }}!'
         description: 'The average fraction of time the request handler threads (IO) are idle. A lower value {{ $value }} indicates that the workload of a broker is very high.'
 
     - alert: Replica_Fetcher_Manager_Max_Lag
-      expr: avg(kafka_server_replicafetchermanager_maxlag)by(service_name) > 50
+      expr: avg(kafka_server_replicafetchermanager_maxlag{job="kafka-jmx-exporter"})by(job) > 50
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: Replica Fetcher Manager Max Lag is {{ $value }}!'
+        summary: 'Kafka {{ $labels.job }}: Replica Fetcher Manager Max Lag is {{ $value }}!'
         description: 'The maximum lag between the time that messages are received by the leader replica and by the follower replicas.'
 
     - alert: Topic_Count
-      expr: count(count by (topic,service_name) (kafka_server_brokertopicmetrics_messagesinpersec_5minuterate{executor_name="kafka"}))by(service_name) > 1000
+      expr: count(count by (topic,job) (kafka_server_brokertopicmetrics_messagesin_total{job="kafka-jmx-exporter"}))by(job) > 1000
       for: 5m
       labels:
         severity: warning
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: 1000 topics reached'
+        summary: 'Kafka {{ $labels.job }}: 1000 topics reached'
         description: 'The number of active topics in the cluster has reached 1000.'
-    
+
     - alert: Request_Queue_Time_Max
-      expr: max(kafka_network_requestmetrics_requestqueuetimems_mean{executor_name="kafka"})by(service_name) > 100
+      expr: max(rate(kafka_network_requestmetrics_requestqueuetimems_count{job="kafka-jmx-exporter"}[1m])) > 100
       for: 1m
       labels:
         severity: warning
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: {{ $value }}ms request queue time'
+        summary: 'Kafka {{ $labels.job }}: {{ $value }}ms request queue time'
         description: 'Max request queue time exceeded 100ms for a request. It is the time, in milliseconds, that a request currently spends in the request queue.'
 
     - alert: Response_Queue_Time_Max
-      expr: max(kafka_network_requestmetrics_responsequeuetimems_mean{executor_name="kafka"})by(service_name) > 100
+      expr: max(rate(kafka_network_requestmetrics_responsequeuetimems_count{job="kafka-jmx-exporter"}[1m])) > 100
       for: 1m
       labels:
         severity: warning
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: {{ $value }}ms response queue time'
+        summary: 'Kafka {{ $labels.job }}: {{ $value }}ms response queue time'
         description: 'Max response queue time exceeded 100ms for a request. It is the length of time, in milliseconds, that the request waits in the response queue.'
 
     - alert: Zookeeper_Sync_Connect
-      expr: avg(kafka_server_sessionexpirelistener_zookeepersyncconnectspersec_count{executor_name="kafka"})by(service_name) < 1
+      expr: avg(kafka_server_sessionexpirelistener_zookeepersyncconnects_total{job="kafka-jmx-exporter"})by(job) < 1
       for: 1m
       labels:
         severity: warning
       annotations:
-        summary: 'Kafka {{ $labels.service_name }}: Zookeeper Sync Disconected'
+        summary: 'Kafka {{ $labels.job }}: Zookeeper Sync Disconected'
         description: 'Zookeeper Sync Disconected'
 
     - alert: KafkaTopicsReplicas
@@ -147,7 +147,7 @@ groups:
         description: "Kafka consumers group\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
     - alert: KafkaDown
-      expr: up{instance=~"kafka-.+", job="jmx-exporter"} == 0
+      expr: up{job="kafka-jmx-exporter"} == 0
       for: 3m
       labels:
         severity: warning
@@ -183,33 +183,25 @@ groups:
         description: "{{ $value }} partitions in Kafka are under replicated"
 
     - alert: PartitionCountHigh
-      expr: max(kafka_server_replicamanager_partitioncount)  by (kubernetes_namespace, kafka_cr) > 100
+      expr: max(kafka_server_replicamanager_partitioncount{job="kafka-jmx-exporter"}) by (instance, job) > 100
       for: 3m
       labels:
         severity: alert
       annotations:
-        description: 'broker {{ $labels.brokerId }} has high partition count'
+        description: 'broker {{ $labels.instance }} has high partition count'
 
-    - alert: KafkaRunningOutOfSpace
-      expr: kubelet_volume_stats_available_bytes{persistentvolumeclaim=~"data-([0-9]+)?-(.+)-kafka-[0-9]+"} < 5368709120
-      for: 10s
-      labels:
-        severity: warning
-      annotations:
-        summary: 'Kafka is running out of free disk space'
-        description: 'There are only {{ $value }} bytes available at {{ $labels.persistentvolumeclaim }} PVC'
-    
+
     - alert: UnderReplicatedPartitions
-      expr: kafka_server_replicamanager_underreplicatedpartitions > 0
+      expr: max(kafka_server_replicamanager_underreplicatedpartitions{job="kafka-jmx-exporter"}) by (instance,job) > 0
       for: 10s
       labels:
         severity: warning
       annotations:
         summary: 'Kafka under replicated partitions'
-        description: 'There are {{ $value }} under replicated partitions on {{ $labels.kubernetes_pod_name }}'
+        description: 'There are {{ $value }} under replicated partitions on {{ $labels.instance }}'
       
     - alert: AbnormalControllerState
-      expr: sum(kafka_controller_kafkacontroller_activecontrollercount) != 1
+      expr: sum(kafka_controller_kafkacontroller_activecontrollercount{job="kafka-jmx-exporter"}) != 1
       for: 10s
       labels:
         severity: warning
@@ -218,7 +210,7 @@ groups:
         description: 'There are {{ $value }} active controllers in the cluster'
 
     - alert: OfflinePartitions
-      expr: sum(kafka_controller_kafkacontroller_offlinepartitionscount) > 0
+      expr: sum(kafka_controller_kafkacontroller_offlinepartitionscount{job="kafka-jmx-exporter"}) > 0
       for: 10s
       labels:
         severity: warning
@@ -227,57 +219,20 @@ groups:
         description: 'One or more partitions have no leader'
 
     - alert: UnderMinIsrPartitionCount
-      expr: kafka_server_replicamanager_underminisrpartitioncount > 0
+      expr: max(kafka_server_replicamanager_underminisrpartitioncount{job="kafka-jmx-exporter"}) by (instance,job) > 0
       for: 10s
       labels:
         severity: warning
       annotations:
         summary: 'Kafka under min ISR partitions'
-        description: 'There are {{ $value }} partitions under the min ISR on {{ $labels.kubernetes_pod_name }}'
+        description: 'There are {{ $value }} partitions under the min ISR on {{ $labels.instance }}'
 
     - alert: OfflineLogDirectoryCount
-      expr: kafka_log_logmanager_offlinelogdirectorycount > 0
+      expr: max(kafka_log_logmanager_offlinelogdirectorycount{job="kafka-jmx-exporter"}) by (instance,job) > 0
       for: 10s
       labels:
         severity: warning
       annotations:
         summary: 'Kafka offline log directories'
-        description: 'There are {{ $value }} offline log directories on {{ $labels.kubernetes_pod_name }}'
-
-    - alert: ScrapeProblem
-      expr: up{kubernetes_namespace!~"openshift-.+",kubernetes_pod_name=~".+-kafka-[0-9]+"} == 0
-      for: 3m
-      labels:
-        severity: major
-      annotations:
-        summary: 'Prometheus unable to scrape metrics from {{ $labels.kubernetes_pod_name }}/{{ $labels.instance }}'
-        description: 'Prometheus was unable to scrape metrics from {{ $labels.kubernetes_pod_name }}/{{ $labels.instance }} for more than 3 minutes'
-
-    - alert: ClusterOperatorContainerDown
-      expr: count((container_last_seen{container="strimzi-cluster-operator"} > (time() - 90))) < 1 or absent(container_last_seen{container="strimzi-cluster-operator"})
-      for: 1m
-      labels:
-        severity: major
-      annotations:
-        summary: 'Cluster Operator down'
-        description: 'The Cluster Operator has been down for longer than 90 seconds'
-
-    - alert: KafkaBrokerContainersDown
-      expr: absent(container_last_seen{container="kafka",pod=~".+-kafka-[0-9]+"})
-      for: 3m
-      labels:
-        severity: major
-      annotations:
-        summary: 'All `kafka` containers down or in CrashLookBackOff status'
-        description: 'All `kafka` containers have been down or in CrashLookBackOff status for 3 minutes'
-        
-    - alert: KafkaContainerRestartedInTheLast5Minutes
-      expr: count(count_over_time(container_last_seen{container="kafka"}[5m])) > 2 * count(container_last_seen{container="kafka",pod=~".+-kafka-[0-9]+"})
-      for: 5m
-      labels:
-        severity: warning
-      annotations:
-        summary: 'One or more Kafka containers restarted too often'
-        description: 'One or more Kafka containers were restarted too often within the last 5 minutes'
-
+        description: 'There are {{ $value }} offline log directories on {{ $labels.instance }}'
     
