@@ -1,4 +1,4 @@
-= Running Kafka Cluster Locally
+= Running Kafka Cluster Locally and Corrupting ISR leader log
 
 This repository aims to demonstrate 3 instances of AMQ-Streams and Zookeeper running on a machine. It was originally forked from the following repository:
 https://github.com/luszczynski/kafka-ansible
