@@ -1,0 +1,24 @@
+CONSUMER vscode1
+topic: teste
+partitions: 1
+from: 0
+
+###
+CONSUMER vscode2
+topic: teste
+partitions: 1
+from: 0
+
+###
+CONSUMER vscode3
+topic: teste
+partitions: 1
+from: 0
+
+###
+CONSUMER vscode4
+topic: teste
+partitions: 1
+from: 0
+
+###

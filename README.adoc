@@ -1,6 +1,14 @@
-= Running Kafka Locally
+= Running Kafka Cluster Locally
 
-== Pre-req
+This repository aims to demonstrate 3 instances of AMQ-Streams and Zookeeper running on a machine. It was originally forked from the following repository:
+https://github.com/luszczynski/kafka-ansible
+
+
+== Pre-requirement
+
+1. Install Ansible
+
+2. Open the terminal and run command bellow:
 
 [source,bash]
 ----
@@ -9,3 +17,86 @@ do
     sudo ifconfig lo0 alias 127.0.0.$i up
 done
 ----
+
+== Install Instructions
+
+Clone the repository and run the comand bellow:
+[source,bash]
+----
+ansible-playbook install.yml -i inventory  
+----
+
+After installation you can start automatically using the command:
+[source,bash]
+----
+ansible-playbook start.yml -i inventory  
+----
+Another alternative is to manually start the services, mainly to maintain kafka's ISR leadership. We can start zookeeper's through the "zookeeper.sh" files located in each hosts folder. For example: <Repository folder>/tmp/workdir/zookeeper/127.0.0.X/zookeeper.sh.
+After starting zookeeper's manually, start the brokers through the command "kafka.sh" in the brokers folders such as:<Repository folder>/tmp/workdir/zookeeper/127.0.0.X/kafka.sh
+
+== Installing VSCode extension for kafka
+To help with troubleshooting, I recommend installing the vscode extension for kafka: 
+<https://marketplace.visualstudio.com/items?itemName=jeppeandersen.vscode-kafka>
+
+== Creating topic teste
+
+First let's create a topic called "teste"
+
+[source,bash]
+----
+kafka-topics.sh \
+    --bootstrap-server 127.0.0.4:9092 \
+    --create \
+    --topic teste \
+    --partitions 3 \
+    --replication-factor 3 \
+    --config min.insync.replicas=2
+----
+ 
+== Listing topic and identyfing leader of partitions 
+
+then we'll list the topics and partitions:
+
+[source,bash]
+----
+kafka-topics.sh \
+    --bootstrap-server 127.0.0.4:9092 \
+    --describe
+----
+The output from the command will look like this:
+----
+Topic: teste    PartitionCount: 3       ReplicationFactor: 3    Configs: min.insync.replicas=2,segment.bytes=1073741824
+        Topic: teste    Partition: 0    Leader: 104     Replicas: 105,104,106   Isr: 104,105,106
+        Topic: teste    Partition: 1    Leader: 104     Replicas: 106,105,104   Isr: 104,105,106
+        Topic: teste    Partition: 2    Leader: 104     Replicas: 104,106,105   Isr: 104,105,106
+----
+You can also find the topic leader partitions through the Kafka Explorer in the VSCode Kafka extension.
+
+== Producing and consuming "teste" topic messages
+
+Then, to produce keyed messages in the topic, let's open the PRODUCERs.kafka file and click on the "produce record" buttons of the first 3 producers as in the image below:
+
+Then we will consume the messages via the CONSUMERs.kafka file. But let's start and stop only the first two consumers as in the image below:
+
+In the image above on the right side we see that the messages were successfully consumed by consumer-groups vscode1 and vscode2.
+
+== Corrupting partition leader log
+
+Let's stop the brokers one by one, starting with the followers and stopping the leader last. inside each broker's directory there is a file called kafka.pid which contains the process id of each broker. let's run the command to kill -9 <process id> for each broker:
+[source, bash]
+----
+kill -9 93814 #broker 106
+kill -9 93430 #broker 105
+kill -9 93059 #broker 104
+----
+
+Later, we will simulate a critical failure on the machine where we will lose the disk where the leader's log was. let's go into the leader's kafka-data directory and corrupt his log:
+
+[source, bash]
+----
+cd 127.0.0.4/amq-streams/kafka-data/teste-1
+echo > 00000000000000000000.log 
+----
+
+Corrupted log. And here's the problem, depending on the boot order now, we're going to generate cluster-wide message loss. If we initialize broker 105 or broker 106 first, they will take the lead in the ISR and replicate their log to the 104 that has the corrupted log.
+But if we start 104 first, it will "corrupt" the followers log by truncating their log. And when we started consumer vscode3 we will have noticed the loss of messages as in the image below: 

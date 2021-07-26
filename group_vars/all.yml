@@ -1,7 +1,7 @@
-WORKDIR: /tmp/workdir
-DOWNLOAD_DIR: /tmp/downloads
+WORKDIR: /Users/omelo/repos/kafka-ansible/tmp/workdir
+DOWNLOAD_DIR: /Users/omelo/repos/kafka-ansible/tmp/downloads
 
-KAFKA_BINARY_NAME: amq-streams-1.5.0-bin.zip
+KAFKA_BINARY_NAME: amq-streams-1.7.0-bin.zip
 PROMETHEUS_BINARY_URL: https://github.com/prometheus/prometheus/releases/download/v2.20.1/prometheus-2.20.1.darwin-amd64.tar.gz
 JMX_EXPORTER_URL: https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.13.0/jmx_prometheus_javaagent-0.13.0.jar
 JOLOKIA_BINARY_URL: https://search.maven.org/remotecontent?filepath=org/jolokia/jolokia-jvm/1.6.2/jolokia-jvm-1.6.2-agent.jar

@@ -1,0 +1,26 @@
+PRODUCER keyed-message-1
+topic: teste
+key: mykeyq
+1
+
+###
+
+PRODUCER keyed-message-2
+topic: teste
+key: mykeyq
+2
+
+###
+PRODUCER keyed-message-3
+topic: teste
+key: mykeyq
+3
+
+###
+
+
+PRODUCER non-keyed-json-message
+topic: teste
+{
+    "type": "my_test_event-{{random.number}}"
+}

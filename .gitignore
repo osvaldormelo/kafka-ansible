@@ -6,5 +6,5 @@
 *.zip
 
 download_files/*.zip
-
+tmp/*
 # End of https://www.toptal.com/developers/gitignore/api/ansible
