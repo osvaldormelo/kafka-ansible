@@ -72,17 +72,17 @@ Topic: teste    PartitionCount: 3       ReplicationFactor: 3    Configs: min.ins
 ----
 You can also find the topic leader partitions through the Kafka Explorer in the VSCode Kafka extension.
 
-![kafkaexplorer](https://github.com/osvaldormelo/kafka-ansible/blob/master/img/kafkaExplorer.png?Raw=true)
+image:https://github.com/osvaldormelo/kafka-ansible/blob/master/img/kafkaExplorer.png?Raw=true[corrupted,400]
 
 == Producing and consuming "teste" topic messages
 
 Then, to produce keyed messages in the topic, let's open the PRODUCERs.kafka file and click on the "produce record" buttons of the first 3 producers as in the image below:
 
-![producing](https://github.com/osvaldormelo/kafka-ansible/blob/master/img/Producing.png?Raw=true)
+image:https://github.com/osvaldormelo/kafka-ansible/blob/master/img/Producing.png?Raw=true[corrupted,400]
 
 Then we will consume the messages via the CONSUMERs.kafka file. But let's start and stop only the first two consumers as in the image below:
 
-![consuming](https://github.com/osvaldormelo/kafka-ansible/blob/master/img/Consuming.png?Raw=true)
+image:https://github.com/osvaldormelo/kafka-ansible/blob/master/img/Consuming.png?Raw=true[consuming,400]
 
 In the image above on the right side we see that the messages were successfully consumed by consumer-groups vscode1 and vscode2.
 
@@ -107,4 +107,4 @@ echo > 00000000000000000000.log
 Corrupted log. And here's the problem, depending on the boot order now, we're going to generate cluster-wide message loss. If we initialize broker 105 or broker 106 first, they will take the lead in the ISR and replicate their log to the 104 that has the corrupted log.
 But if we start 104 first, it will "corrupt" the followers log by truncating their log. And when we started consumer vscode3 we will have noticed the loss of messages as in the image below: 
 
-![corrupted](https://github.com/osvaldormelo/kafka-ansible/blob/master/img/LogCorrupted.png?Raw=true)
+image:https://github.com/osvaldormelo/kafka-ansible/blob/master/img/LogCorrupted.png?Raw=true[corrupted,400]
